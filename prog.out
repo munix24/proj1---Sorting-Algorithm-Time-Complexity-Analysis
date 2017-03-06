@@ -1,0 +1,28 @@
+I1          2               1           74832 a
+I1          2               2           28418 decreasing list
+I1          2               1               0 a
+M1          2               1           37770 a
+M1          2               1             754 a
+Q1          2               1           47722 a
+H1          2               1           17245 a
+R1          2               0           81249 a
+I1          2               2               0 decreasing list
+M1          2               1               0 decreasing list
+Q1          2               1               0 decreasing list
+H1          2               0               0 decreasing list
+R1          2               0               0 decreasing list
+I1       1000          500499               2 decreasing list
+M1       1000            4932               0 decreasing list
+Q1       1000          499500               9 decreasing list
+H1       1000           10766               0 decreasing list
+R1       1000               0               1 decreasing list
+I1       1000             999               0 increasing list
+M1       1000            5044               1 increasing list
+Q1       1000          499500               2 increasing list
+H1       1000           13145               1 increasing list
+R1       1000               0               0 increasing list
+I1       1000          249144               1 random list
+M1       1000            8715               0 random list
+Q1       1000           11319               1 random list
+H1       1000           12206               0 random list
+R1       1000               0               1 random list

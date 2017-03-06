@@ -1,0 +1,40 @@
+#
+# Makefile for sorting algorithms.
+#
+
+CC      = gcc
+CFLAGS  = -c
+# CFLAGS  = -O3 -Wall -c -fomit-frame-pointer -fexpensive-optimizations \
+#          -fstrength-reduce -funroll-all-loops 
+DEFINES = 
+COMPILE = $(CC) $(DEFINES) $(CFLAGS)
+
+OBJS = sort.o
+BIN  = mysorts
+
+#
+# Rules
+#
+
+#
+# Targets
+#
+
+all:  $(OBJS)
+	$(CC) -o $(BIN) $(OBJS)
+
+sort.o:  sort.c
+	$(COMPILE) sort.c
+
+#
+# Utilities
+#
+
+clean:
+	rm -f *.o core
+
+realclean:  clean
+	rm -f $(BIN)
+
+clobber:  realclean
+
