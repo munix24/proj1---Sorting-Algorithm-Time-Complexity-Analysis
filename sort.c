@@ -1,29 +1,29 @@
-/*************************************************************    
+/*************************************************************
 This program uses input:
-1. read in from an input file 
-file format:  
+1. read in from an input file
+file format:
 <n -- number of elements to sort>
 <element 1>
 <element 2>
-... 
+...
 <element n>
 2. creates random input lists
 3. creates increasing input lists
 4. creates decreasing input lists
 
 This program runs:
-1. insertion sort 
+1. insertion sort
 2. mergesort
-3. quicksort 
-4. heapsort 
-5. radix sort 
+3. quicksort
+4. heapsort
+5. radix sort
 
-It has a menu interface.  
+It has a menu interface.
 The time of the sort is displayed after it is run, along with
 the number of comparisons performed (for comparison-based sorts).
-Also, the statistics are written to an output file named 
+Also, the statistics are written to an output file named
 "prog.out".
-To compile the program, copy the program (sort.c) and the 
+To compile the program, copy the program (sort.c) and the
 Makefile to your directory. Type "make". The executable is
 called mysorts.
 **************************************************************/
@@ -47,9 +47,11 @@ typedef struct BucketType          /* Bucket structure for RadixSort */
 } BUCKET;
 
 #define NUMMENUOPTIONS 10
-typedef enum { INFILE, RANDOM, INCREASING, DECREASING,
-INSERTION, MERGE, QUICK1, HEAP, RADIX,
-EXIT}
+typedef enum {
+	INFILE, RANDOM, INCREASING, DECREASING, SHUFFLE_LIST,
+	INSERTION, MERGE, QUICK1, HEAP, RADIX,
+	EXIT
+}
 MenuOptionTypes;
 
 /* GLOBAL VARIABLE */
@@ -71,10 +73,10 @@ void Check(long *, int);
 
 void InsertionSort(long *, int);               /* Insertion Sort */
 
-void MergeSort(long *, long *, int ,int);      /* Merge Sort */
+void MergeSort(long *, long *, int, int);      /* Merge Sort */
 void Merge(long *, long *, int, int, int);
 
-void QuickSort1(long *, int ,int);              /* Quick Sort */
+void QuickSort1(long *, int, int);              /* Quick Sort */
 int  FindMedian(long *, int, int, int);
 void Split(long *, int, int, int *);
 void Swap(long *, long *);
@@ -92,7 +94,7 @@ int main()
 	int choice;                 /* value of user's menu choice           */
 	int done = 0;               /* Set to 1 when user wants to exit menu */
 	char filename[50] = NOFILE; /* input filename initialized to NONAME  */
-	long *List=NULL;            /* Original List of Values               */
+	long *List = NULL;            /* Original List of Values               */
 	long *TestList;             /* List used for testing                 */
 	long *TestListCopy;         /* used to store copy of TestList        */
 	int num;                    /* number of elements in list            */
@@ -102,33 +104,36 @@ int main()
 	{
 		comparison_count = 0;	/* Set compare-count to zero		     */
 		choice = Menu();  /* Display menu. Get value of user's choice. */
-		switch(choice)    /* Examine value of user's choice.           */
+		switch (choice)    /* Examine value of user's choice.           */
 		{
 		case INFILE:  /* (1) SPECIFY INPUT FILE */
 			/* Prompt user to enter filename and read it in.     */
 			/* Read in numbers from input file and place in List */
 			GetFilename(filename);
-			if (List != NULL) free (List);
+			if (List != NULL) free(List);
 			List = ReadInData(filename, &num);
 			break;
 		case RANDOM:  /* (2) Make Random Input List */
-			if (List != NULL) free (List);
+			if (List != NULL) free(List);
 			List = MakeRandomList(&num);
-			strcpy(filename,"random list"); /* input 'filename' is random */
+			strcpy(filename, "random list"); /* input 'filename' is random */
 			break;
 		case INCREASING:  /* (3) Make Increasing Input List */
-			if (List != NULL) free (List);
+			if (List != NULL) free(List);
 			List = MakeIncreasingList(&num);
-			strcpy(filename,"increasing list"); /* input 'filename' is increasing */
+			strcpy(filename, "increasing list"); /* input 'filename' is increasing */
 			break;
 		case DECREASING:  /* (4) Make Decreasing Input List */
-			if (List != NULL) free (List);
+			if (List != NULL) free(List);
 			List = MakeDecreasingList(&num);
-			strcpy(filename,"decreasing list"); /* input 'filename' is decreasing */
+			strcpy(filename, "decreasing list"); /* input 'filename' is decreasing */
 			break;
-		case INSERTION:  /* (5) INSERTION SORT */
+		case SHUFFLE_LIST:  /* (5) Shuffle_List */
+			Shuffle(List, &num);
+			break;
+		case INSERTION:  /* (6) INSERTION SORT */
 			/* Check to make sure there is a list to sort...*/
-			if( List != NULL )
+			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				TestList = CreateList(num);
@@ -136,16 +141,17 @@ int main()
 				start = clock();               /* get start time */
 				InsertionSort(TestList, num);  /* sort list      */
 				end = clock();                 /* get end time   */
-				ShowResults("1Insertion Sort",start,end,num,filename); 
-				Check(TestList,num);  /* Check for correct sorting */
+				ShowResults("1Insertion Sort", start, end, num, filename);
+				Check(TestList, num);  /* Check for correct sorting */
 				free(TestList);
-			} else {
-				printf ("\nThere is no input list. Specify one!.\n");
+			}
+			else {
+				printf("\nThere is no input list. Specify one!.\n");
 			}
 			break;
-		case MERGE:  /* (6) MERGE SORT */
+		case MERGE:  /* (7) MERGE SORT */
 			/* Check to make sure there is a list to sort...*/
-			if( List != NULL )
+			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				/* Create a copy of Test List since Merge Sort needs */
@@ -155,55 +161,58 @@ int main()
 				TestListCopy = CreateList(num);
 				CopyList(TestListCopy, TestList, num);
 				start = clock();                    /* get start time */
-				MergeSort(TestListCopy, TestList, 0 ,num-1); /* sort */
+				MergeSort(TestListCopy, TestList, 0, num - 1); /* sort */
 				end = clock();                        /* get end time */
-				ShowResults("1Merge Sort", start, end, num, filename); 
-				Check(TestList,num);  /* Check for correct sorting */
+				ShowResults("1Merge Sort", start, end, num, filename);
+				Check(TestList, num);  /* Check for correct sorting */
 				free(TestListCopy);
 				free(TestList);
-			} else {
-				printf ("\nThere is no input list. Specify one!.\n");
+			}
+			else {
+				printf("\nThere is no input list. Specify one!.\n");
 			}
 			break;
-		case QUICK1:  /* (7) QUICK SORT */
+		case QUICK1:  /* (8) QUICK SORT */
 			/* Check to make sure there is a list to sort...*/
-			if( List != NULL )
+			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				TestList = CreateList(num);
 				CopyList(TestList, List, num);
 				start = clock();                      /* get start time*/
-				QuickSort1(TestList, 0, num-1);        /* sort list     */
+				QuickSort1(TestList, 0, num - 1);        /* sort list     */
 				end = clock();                        /* get end time  */
 				ShowResults("1Quick Sort (pivot 1)", start, end, num, filename);
-				Check(TestList,num);  /* Check for correct sorting */
+				Check(TestList, num);  /* Check for correct sorting */
 				free(TestList);
-			} else {
-				printf ("\nThere is no input list. Specify one!.\n");
+			}
+			else {
+				printf("\nThere is no input list. Specify one!.\n");
 			}
 			break;
-		case HEAP:  /* (8) HEAP SORT */
+		case HEAP:  /* (9) HEAP SORT */
 			/* Check to make sure there is a list to sort...*/
-			if( List != NULL )
+			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				/* Values start at position 1 in array because of     */
 				/* binary tree implementation. */
-				TestList = CreateList(num+1);
-				CopyList(TestList+1, List, num);
+				TestList = CreateList(num + 1);
+				CopyList(TestList + 1, List, num);
 				start = clock();                   /* get start time */
 				HeapSort(TestList, num);           /* sort list      */
 				end = clock();                     /* get end time   */
-				ShowResults("1Heap Sort", start, end, num, filename); 
-				Check(TestList+1,num);  /* Check for correct sorting */
+				ShowResults("1Heap Sort", start, end, num, filename);
+				Check(TestList + 1, num);  /* Check for correct sorting */
 				free(TestList);
-			} else {
-				printf ("\nThere is no input list. Specify one!.\n");
+			}
+			else {
+				printf("\nThere is no input list. Specify one!.\n");
 			}
 			break;
-		case RADIX:  /* (9) RADIX SORT */
+		case RADIX:  /* (10) RADIX SORT */
 			/* Check to make sure there is a list to sort...*/
-			if( List != NULL )
+			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				TestList = CreateList(num);
@@ -211,24 +220,39 @@ int main()
 				start = clock();                    /* get start time */
 				RadixSort(TestList, num);           /* sort list      */
 				end = clock();                      /* get end time   */
-				ShowResults("1Radix Sort",start,end,num,filename); 
-				Check(TestList,num);  /* Check for correct sorting */
+				ShowResults("1Radix Sort", start, end, num, filename);
+				Check(TestList, num);  /* Check for correct sorting */
 				free(TestList);
-			} else {
-				printf ("\nThere is no input list. Specify one!.\n");
+			}
+			else {
+				printf("\nThere is no input list. Specify one!.\n");
 			}
 			break;
-		case EXIT:  /* (10) EXIT */
+		case EXIT:  /* (11) EXIT */
 			done = 1;      /* Set done to 1 so loop will terminate.*/
 			break;
 		default:  /* INVALID MENU CHOICE */
 			printf("\nInvalid Choice. Press 1,2,3,4,5,6,7 or 8.\n");
 			break;
 		} /* end switch */
-	} while(!done);
+	} while (!done);
 
 	return(0);
 } /* end main */
+
+long Shuffle(long *L, int *num)
+{
+	int random_pos;        /* index of for loop */
+	int temp;        /* index of for loop */
+	int i;                 /* index of for loop */
+	for (i = 0; i < *num; ++i)
+	{
+		random_pos = rand(time(NULL)) % *num;	/* random position between 0 and num-1 (inclusive) */
+		temp=L[random_pos];
+		L[random_pos] = L[i];
+		L[i]= temp;
+	}
+}
 
 /*PROCEDURE: InsertionSort (*L, n)
 
@@ -278,14 +302,13 @@ OUTPUT: L      Pointer to sorted array of elements*/
 void QuickSort1(long *L, int first, int last)
 {
 	int SplitPoint;  /* Value to Split list around */
-
-	if( first < last )
+	if (first < last)
 	{
 		/* Use first element as pivot (for splitting) */
-		SplitPoint = first;                 /* assign SplitPoint to 1st index */
-		Split(L, first, last, &SplitPoint); /* Split List around SplitPoint */
-		QuickSort1(L, first, SplitPoint-1);  /* Sort 1st section of list */
-		QuickSort1(L, SplitPoint+1, last);   /* Sort 2nd section of list */
+		SplitPoint = first;						/* assign SplitPoint to 1st index */
+		Split(L, first, last, &SplitPoint);		/* Split List around SplitPoint */
+		QuickSort1(L, first, SplitPoint - 1);	/* Sort 1st section of list */
+		QuickSort1(L, SplitPoint + 1, last);	/* Sort 2nd section of list */
 	}
 }
 
@@ -298,24 +321,24 @@ SplitPoint are >= SplitPoint */
 	int unknown;      /* index of unknown value */
 
 	x = L[*SplitPoint];   /* assign x to value at SplitPoint */
-	Swap( &L[*SplitPoint], &L[first] ); 
-	*SplitPoint = first; 
+	Swap(&L[*SplitPoint], &L[first]);
+	*SplitPoint = first;
 
 	/* Loop walks through unknown portion of list */
-	for ( unknown = first+1; unknown <= last; ++unknown)
+	for (unknown = first + 1; unknown <= last; ++unknown)
 	{
 		/* If unknown value is < SplitPoint Value, then: */
 #ifdef TAKE_COUNT
 		comparison_count++;
 #endif
-		if( L[unknown] < x ) {
-			++ (*SplitPoint);                     /* SplitPoint is incremented */
-			Swap( &L[*SplitPoint], &L[unknown] ); /* values are swapped*/
+		if (L[unknown] < x) {
+			++(*SplitPoint);                     /* SplitPoint is incremented */
+			Swap(&L[*SplitPoint], &L[unknown]); /* values are swapped*/
 		}
 	}
 	/* Original value which was being split upon is swapped with the current
 	SplitPoint to put it in correct position */
-	Swap( &L[first], &L[*SplitPoint] );
+	Swap(&L[first], &L[*SplitPoint]);
 }
 
 int FindMedian(long *L, int A, int B, int C)
@@ -367,9 +390,9 @@ void MergeSort(long *Source, long *Destination, int Lower, int Upper)
 
 	if (Lower != Upper)
 	{
-		Mid = (int) ((Lower + Upper)/2);         /* find middle of list */
+		Mid = (int)((Lower + Upper) / 2);         /* find middle of list */
 		MergeSort(Destination, Source, Lower, Mid);    /* sort 1st half */
-		MergeSort(Destination, Source, Mid+1, Upper);  /* sort 2nd half */
+		MergeSort(Destination, Source, Mid + 1, Upper);  /* sort 2nd half */
 		Merge(Source, Destination, Lower, Mid, Upper); /* combine lists */
 	}
 }
@@ -390,29 +413,31 @@ Destination List, and Lower, Mid, and Upper indices of list.  */
 #ifdef TAKE_COUNT
 		comparison_count++;
 #endif
-		if( Source[S1] < Source[S2] ) {
+		if (Source[S1] < Source[S2]) {
 			Destination[D] = Source[S1];   /* Put Source1 in List */
-			++ S1;                         /* look at next Source1 value */
-		} else {                          /* Otherwise: */
-			Destination[D] = Source[S2];   /* Put Source2 in List */
-			++ S2;                         /* look at next Source2 value */
+			++S1;                         /* look at next Source1 value */
 		}
-		++ D;                             /* increment List index */
-	} while (( S1 <= Mid ) && ( S2 <= Upper));
+		else {                          /* Otherwise: */
+			Destination[D] = Source[S2];   /* Put Source2 in List */
+			++S2;                         /* look at next Source2 value */
+		}
+		++D;                             /* increment List index */
+	} while ((S1 <= Mid) && (S2 <= Upper));
 
 	/* Move what is left of remaining list */
-	if ( S1 > Mid ) {    /* If Source1 has more than 1/2 values: */
+	if (S1 > Mid) {    /* If Source1 has more than 1/2 values: */
 		do {               /* Put the rest of Source1 in List */
 			Destination[D] = Source[S2];
-			++ S2;
-			++ D;
-		} while ( S2 <= Upper );
-	} else {                /* Otherwise: */
+			++S2;
+			++D;
+		} while (S2 <= Upper);
+	}
+	else {                /* Otherwise: */
 		do {               /* Put the rest of Source2 in List */
 			Destination[D] = Source[S1];
-			++ S1;
-			++ D;
-		} while ( S1 <= Mid );
+			++S1;
+			++D;
+		} while (S1 <= Mid);
 	}
 }
 
@@ -430,13 +455,13 @@ void HeapSort(long *L, int n)
 	int i, heapsize;    /* indices */
 	int max;            /* max value in heap */
 
-	for ( i = (int)(n/2); i >= 1; --i )   /* Build Heap from list */
+	for (i = (int)(n / 2); i >= 1; --i)   /* Build Heap from list */
 		Heapify(L, i, L[i], n);
 
 	/* Repeatedly remove key at root of heap and rearrange the heap */
-	for ( heapsize = n; heapsize >= 2; --heapsize ) {
+	for (heapsize = n; heapsize >= 2; --heapsize) {
 		max = L[1];                     /* max is the root value of heap */
-		Heapify(L, 1, L[heapsize], heapsize-1 );  /* fix the heap */
+		Heapify(L, 1, L[heapsize], heapsize - 1);  /* fix the heap */
 		L[heapsize] = max;              /* put value in the list  */
 	}
 }
@@ -449,16 +474,16 @@ the root index, key value, and the bound of the heap. */
 
 	vacant = root;      /* set vacant to root element of heap */
 
-	while( (2*vacant) <= bound ) {  /* loop executes while bound not exceeded */
-		LargerChild = 2*vacant;    /* Set Large Child to left child of vacant */
-		if( ( 2*vacant < bound ) && ( L[2*vacant+1] > L[2*vacant] ) ) {
+	while ((2 * vacant) <= bound) {  /* loop executes while bound not exceeded */
+		LargerChild = 2 * vacant;    /* Set Large Child to left child of vacant */
+		if ((2 * vacant < bound) && (L[2 * vacant + 1] > L[2 * vacant])) {
 			/* If right child is bigger, */
 #ifdef TAKE_COUNT
 			comparison_count++;
 #endif
-			LargerChild = 2*vacant+1; /* make it LargerChild. */
+			LargerChild = 2 * vacant + 1; /* make it LargerChild. */
 		}
-		if ( key < L[LargerChild] ) { /* if key value is less than LargerChild:*/
+		if (key < L[LargerChild]) { /* if key value is less than LargerChild:*/
 #ifdef TAKE_COUNT
 			comparison_count++;
 #endif
@@ -490,22 +515,22 @@ void RadixSort(long *L, int n)
 	int NUMBUCKETS = 16;     /* number of buckets */
 	int DIGITSIZE = 4;       /* number of digits in each number */
 
-	for(i = 0; i < NUMBUCKETS; ++i) {    /* Create all buckets */
+	for (i = 0; i < NUMBUCKETS; ++i) {    /* Create all buckets */
 		bucket[i] = CreateBucket(n);
 		bucket[i].id = (unsigned long)i;  /* assign each bucket its id # */
 	}
 
-	for(i = 0; i < NUMFIELDS; ++i) {    /* loop goes through fields  */
+	for (i = 0; i < NUMFIELDS; ++i) {    /* loop goes through fields  */
 
-		for(j = 0; j < NUMBUCKETS; ++j)  /* loop goes through buckets */
+		for (j = 0; j < NUMBUCKETS; ++j)  /* loop goes through buckets */
 			InitializeBucket(&bucket[j]); /* Initialize all buckets */
 
-		for( j = 0; j < n; ++ j) {            /* Loop walks through all values */
+		for (j = 0; j < n; ++j) {            /* Loop walks through all values */
 			MaskValue = L[j] & MASK;          /* Mask value with bitmask */
-			for(k = 0; k < NUMBUCKETS; ++k){   /* Distribute values into buckets*/
-				if( MaskValue == bucket[k].id ){ /* check bucket */
+			for (k = 0; k < NUMBUCKETS; ++k) {   /* Distribute values into buckets*/
+				if (MaskValue == bucket[k].id) { /* check bucket */
 					bucket[k].num[(bucket[k].count)] = L[j]; /* put in bucket */
-					++ (bucket[k].count);    /* increment count in the bucket */
+					++(bucket[k].count);    /* increment count in the bucket */
 					break;                   /* break out of loop */
 				} /*endif*/
 			} /*endfor k*/
@@ -514,21 +539,21 @@ void RadixSort(long *L, int n)
 		counter = 0;                    /* initialize counter to 0 */
 
 		/* Coalesce all values from buckets back into the list */
-		for( j = 0; j < NUMBUCKETS; ++j) {
-			for( k = 0; k < bucket[j].count; ++k) {
+		for (j = 0; j < NUMBUCKETS; ++j) {
+			for (k = 0; k < bucket[j].count; ++k) {
 				L[counter] = bucket[j].num[k];  /* put value from bucket in list*/
-				++ counter;
+				++counter;
 			} /*endfor k*/
 		} /*endfor j*/
 
 		MASK = MASK << DIGITSIZE;    /* Shift Mask to examine next four bits */
-		for(j = 0; j < NUMBUCKETS; ++j) {
+		for (j = 0; j < NUMBUCKETS; ++j) {
 			bucket[j].id = bucket[j].id << DIGITSIZE;  /* Change bucket id's */
 		} /*endfor j*/
 	} /*endfor i*/
 
-	for(i = 0; i < NUMBUCKETS; ++i)  /* Release all buckets */
-		free (bucket[i].num);
+	for (i = 0; i < NUMBUCKETS; ++i)  /* Release all buckets */
+		free(bucket[i].num);
 }
 
 BUCKET CreateBucket(int n)
@@ -537,9 +562,9 @@ BUCKET CreateBucket(int n)
 	BUCKET b;
 
 	/* Allocate enough memory in bucket to hold all numbers in list */
-	b.num = (long *) malloc( n * sizeof(long) );
+	b.num = (long *)malloc(n * sizeof(long));
 
-	if( b.num == NULL) {   /* if memory cannot be allocated, terminate program*/
+	if (b.num == NULL) {   /* if memory cannot be allocated, terminate program*/
 		printf("Cannot allocate enough memory for Radix Sort\n");
 		exit(0);
 	}
@@ -584,9 +609,10 @@ long *ReadInData(char *filename, int *num)
 		printf("\nFile %s could not be found\n", filename);
 		strcpy(filename, NOFILE);
 		return(NULL);               /* Return no List */
-	} else {           /* file exists */
-		/* Allocate memory for # of elements. If memory cannot be allocated,
-		display message and terminate program. Read in the elements. */
+	}
+	else {           /* file exists */
+	 /* Allocate memory for # of elements. If memory cannot be allocated,
+	 display message and terminate program. Read in the elements. */
 
 		printf("\nFile %s is now the input file.\n", filename);
 		fscanf(file, "%d", num);
@@ -608,12 +634,13 @@ long *MakeRandomList(int *num)
 	long *L;               /* pointer to List */
 	unsigned int seed;     /* seed for random number generator */
 	int i;                 /* index of for loop */
+	int asdf;
 
 	printf("\nNumber of elements to sort=>");
-	scanf("%d",num);
+	scanf("%d", num);
 
 	printf("\nSeed for random number generator (integer)=>");
-	scanf("%d",&seed);
+	scanf("%d", &seed);
 	srand(seed);
 
 	/* Allocate memory for # of elements. If memory cannot be allocated,
@@ -624,7 +651,10 @@ long *MakeRandomList(int *num)
 		exit(0);
 	}
 	for (i = 0; i < *num; ++i)
-		L[i] = rand();
+	{
+		asdf = rand();
+		L[i] = asdf;
+	}
 
 	return(L);           /* Return the List */
 }
@@ -635,7 +665,7 @@ long *MakeIncreasingList(int *num)
 	int i;                 /* index of for loop */
 
 	printf("\nNumber of elements to sort=>");
-	scanf("%d",num);
+	scanf("%d", num);
 
 	/* Allocate memory for # of elements. If memory cannot be allocated,
 	display message and terminate program. Read in the elements. */
@@ -656,7 +686,7 @@ long *MakeDecreasingList(int *num)
 	int i;                 /* index of for loop */
 
 	printf("\nNumber of elements to sort=>");
-	scanf("%d",num);
+	scanf("%d", num);
 
 	/* Allocate memory for # of elements. If memory cannot be allocated,
 	display message and terminate program. Read in the elements. */
@@ -677,8 +707,8 @@ long *CreateList(int n)
 {
 	long *L;
 
-	L = (long *) malloc( n * sizeof(long) );
-	if( L == NULL) { /* Exit program if memory cannot be allocated */
+	L = (long *)malloc(n * sizeof(long));
+	if (L == NULL) { /* Exit program if memory cannot be allocated */
 		printf("\nCannot allocate enough memory for list.\n");
 		exit(0);
 	}
@@ -691,7 +721,7 @@ void CopyList(long *copy, long *L, int n)
 {
 	int i;       /* index of for loop */
 
-	for( i=0; i < n; ++i) 
+	for (i = 0; i < n; ++i)
 		copy[i] = L[i];      /* copy value into copy array */
 }
 
@@ -702,7 +732,7 @@ void OutputList(long *L, int n)
 
 	for (i = 0; i < n; ++i)
 		printf("%ld\n", L[i]);
-	printf ("\n");
+	printf("\n");
 }
 
 void GetFilename(char *s)
@@ -717,10 +747,11 @@ int IsActiveFile(char *fname)
 /* Function returns 1 if there is an active input file in use. Otherwise,
 0 is returned */
 {
-	if( strcmp(fname, NOFILE) == 0 ) {
-		printf ("\nThere is no active input file. You must specify an input file.\n");
+	if (strcmp(fname, NOFILE) == 0) {
+		printf("\nThere is no active input file. You must specify an input file.\n");
 		return (0);   /* There is no active input file */
-	} else {
+	}
+	else {
 		return (1);   /* There is an active input file */
 	}
 }
@@ -732,25 +763,26 @@ void ShowResults(char *string, float t1, float t2, int n, char *filename)
 	FILE *file;
 
 	printf("\n\nResults:\n---------------------------------\n");
-	printf("Sort: %s\n",&string[1]);
-	printf("Time: %ld mS, %.3f S\n",micro,sec);
-	printf("Elements: %d\n",n);
-	if (comparison_count!=0) {
+	printf("Sort: %s\n", &string[1]);
+	printf("Time: %ld mS, %.3f S\n", micro, sec);
+	printf("Elements: %d\n", n);
+	if (comparison_count != 0) {
 		/*printf("T/C: %.3f\n",(float)(micro/comparison_count));*/
-		printf("Comparisons: %d\n\n",comparison_count);
-	} else {
-		printf ("Comparisons: N/A\n\n");
+		printf("Comparisons: %d\n\n", comparison_count);
+	}
+	else {
+		printf("Comparisons: N/A\n\n");
 	}
 
 	file = fopen(OUTPUTFILE, "a");   /* open output file for append. */
 	if (file == NULL) {             /* see if problem exists. */
 		printf("\nERROR Writing to %s\n", OUTPUTFILE);
-	} else {           /* no error */
-		fprintf (file,"%c%c %10d %15d %15ld ",
-			string[1],string[0],n,comparison_count,micro);
-		fprintf (file,"%s\n",filename);
-		fclose (file);
-	}  
+	}
+	else {           /* no error */
+		fprintf(file, "%c%c %10d %15d %15ld ",string[1], string[0], n, comparison_count, micro);
+		fprintf(file, "%s\n", filename);
+		fclose(file);
+	}
 }
 
 void Check(long *L, int n)
@@ -760,14 +792,15 @@ void Check(long *L, int n)
 	int valid = 1;   /* initialize validity to TRUE */
 
 	for (i = 1; i < n; ++i) {    /* walk down list */
-		if( L[i-1] > L[i] ) {     /* If a greater value precedes a number: */
+		if (L[i - 1] > L[i]) {     /* If a greater value precedes a number: */
 			valid = 0;            /* valid is FALSE. */
 		}
 	}
 
 	if (valid) {  /* List is correctly sorted. Display message. */
 		printf("List was sorted correctly\n");
-	} else {        /* List is sorted incorrectly. Display message. */
+	}
+	else {        /* List is sorted incorrectly. Display message. */
 		printf("List was sorted incorrectly\n");
 	}
 }
@@ -788,17 +821,18 @@ int Menu(void)
 	printf("(0) Specify Input File      \n");
 	printf("(1) Make Random Input List  \n");
 	printf("(2) Make Increasing Input List  \n");
-	printf("(3) Make Decreasing Input List  \n");
+	printf("(3) Make Decreasing Input List  \n"); 
+	printf("(4) Shuffle List  \n");
 	printf("SORTING ALGORITHMS          \n");
-	printf("(4) Insertion Sort          \n");
-	printf("(5) Merge Sort              \n");
-	printf("(6) Quick Sort (pivot 1)    \n");
-	printf("(7) Heap Sort               \n");
-	printf("(8) Radix Sort              \n");
-	printf("(9) Exit                    \n");
+	printf("(5) Insertion Sort          \n");
+	printf("(6) Merge Sort              \n");
+	printf("(7) Quick Sort (pivot 1)    \n");
+	printf("(8) Heap Sort               \n");
+	printf("(9) Radix Sort              \n");
+	printf("(10) Exit                   \n");
 	printf("\n\nchoice==>");
 	scanf("%d", &choice);     /* user enters choice # */
-	if ( !(choice >= INFILE && choice <= EXIT) )
+	if (!(choice >= INFILE && choice <= EXIT))
 		choice = -1;
 
 	return (choice);          /* return value of user's choice */
