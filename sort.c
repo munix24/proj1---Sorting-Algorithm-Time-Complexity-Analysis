@@ -59,6 +59,7 @@ int comparison_count;    /* Count of comparisons */
 
 /*FUNCTION PROTOTYPES **/
 int Menu(void);
+int QuicksortMenu(void);
 void GetFilename(char *);
 int  IsActiveFile(char *);
 long *ReadInData(char *, int *);
@@ -71,6 +72,7 @@ void OutputList(long *, int);
 void ShowResults(char *, float, float, int, char *);
 void Check(long *, int);
 
+long Shuffle(long *L, int *num);
 void InsertionSort(long *, int);               /* Insertion Sort */
 
 void MergeSort(long *, long *, int, int);      /* Merge Sort */
@@ -177,14 +179,21 @@ int main()
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
-				TestList = CreateList(num);
-				CopyList(TestList, List, num);
-				start = clock();                      /* get start time*/
-				QuickSort1(TestList, 0, num - 1);        /* sort list     */
-				end = clock();                        /* get end time  */
-				ShowResults("1Quick Sort (pivot 1)", start, end, num, filename);
-				Check(TestList, num);  /* Check for correct sorting */
-				free(TestList);
+				int Qchoice;                 /* value of user's menu choice           */
+				Qchoice=QuicksortMenu();
+				if(Qchoice >= 1 && Qchoice <= 3)
+				{
+					TestList = CreateList(num);
+					CopyList(TestList, List, num);
+					start = clock();                      /* get start time*/
+					QuickSort1(TestList, 0, num-1,Qchoice);        /* sort list     */
+					end = clock();                        /* get end time  */
+					ShowResults("1Quick Sort", start, end, num, filename);
+					Check(TestList,num);  /* Check for correct sorting */
+					free(TestList);
+				} else {
+					printf("\nInvalid Choice.\n");
+				}
 			}
 			else {
 				printf("\nThere is no input list. Specify one!.\n");
@@ -232,7 +241,7 @@ int main()
 			done = 1;      /* Set done to 1 so loop will terminate.*/
 			break;
 		default:  /* INVALID MENU CHOICE */
-			printf("\nInvalid Choice. Press 1,2,3,4,5,6,7 or 8.\n");
+			printf("\nInvalid Choice.\n");
 			break;
 		} /* end switch */
 	} while (!done);
@@ -241,6 +250,7 @@ int main()
 } /* end main */
 
 long Shuffle(long *L, int *num)
+/* Shuffle every value within a list */
 {
 	int random_pos;        /* index of for loop */
 	int temp;        /* index of for loop */
@@ -288,30 +298,41 @@ void InsertionSort(long *L, int n)
 	}
 }
 
-/*PROCEDURE: QuickSort1 (*L, first, last)
+/*PROCEDURE: QuickSort1 (*L, first, last, int Qtype)
 
 This procedure uses the quick-sort method to sort elements.
-It uses the 1st element in the array as the pivot element.
 
 INPUT: L	   Pointer to unsorted array of elements
 first  first element of chunk to sort this time
 last   last element of chunk to sort this time
+Qtype	Quicksort type - dictates which is the pivot element
 
 OUTPUT: L      Pointer to sorted array of elements*/
 
-void QuickSort1(long *L, int first, int last)
+void QuickSort1(long *L, int first, int last, int Qtype)
 {
 	int SplitPoint;  /* Value to Split list around */
-	if (first < last)
+
+	if( first < last )
 	{
 		/* Use first element as pivot (for splitting) */
-		SplitPoint = first;						/* assign SplitPoint to 1st index */
-		Split(L, first, last, &SplitPoint);		/* Split List around SplitPoint */
-		QuickSort1(L, first, SplitPoint - 1);	/* Sort 1st section of list */
-		QuickSort1(L, SplitPoint + 1, last);	/* Sort 2nd section of list */
+		switch(Qtype)
+		{
+		case 1:									/* Pivot Choice 1: The first element in the list */
+			SplitPoint = first;                 /* assign SplitPoint to 1st index */
+			break;
+		case 2:									/* Pivot Choice 2: A random element in the array */
+			SplitPoint = (rand(time(NULL)) % (last-first))+first;                 /* assign SplitPoint to random index */
+			break;
+		default:  								/* Pivot Choice 3: The median of the first, middle, and last elements in the array. */
+			SplitPoint = FindMedian(L,first,last,(int)((first + last)/2));                 /* assign SplitPoint to median index */
+			break;
+		}
+		Split(L, first, last, &SplitPoint); /* Split List around SplitPoint */
+		QuickSort1(L, first, SplitPoint-1, Qtype);  /* Sort 1st section of list */
+		QuickSort1(L, SplitPoint+1, last, Qtype);   /* Sort 2nd section of list */
 	}
 }
-
 void Split(long *L, int first, int last, int *SplitPoint)
 /* Splits a list around SplitPoint such that all values to the left of
 SplitPoint are < than SplitPoint and all values to the right of
@@ -805,6 +826,25 @@ void Check(long *L, int n)
 	}
 }
 
+int QuicksortMenu(void)
+/* Displays user menu choices and returns value of user's choice */
+{
+	int  choice;      /* number associated with user's choice. */
+
+	printf("\n");
+	printf("Quicksort TYPE                  \n");
+	printf("(1) Pivot Choice 1: The first element in the list      \n");
+	printf("(2) Pivot Choice 2: A random element in the array.  \n");
+	printf("(3) Pivot Choice 3: The median of the first, middle, and last elements in the array.  \n");
+	printf("(4) Exit                    \n");
+	printf("\n\nchoice==>");
+	scanf("%d",&choice);
+	if ( !(choice >= 1 && choice <= 3) )
+		choice = -1;
+
+	return (choice);          /* return value of user's choice */
+}
+
 int Menu(void)
 /* Displays user menu choices and returns value of user's choice */
 {
@@ -826,7 +866,7 @@ int Menu(void)
 	printf("SORTING ALGORITHMS          \n");
 	printf("(5) Insertion Sort          \n");
 	printf("(6) Merge Sort              \n");
-	printf("(7) Quick Sort (pivot 1)    \n");
+	printf("(7) Quick Sort			    \n");
 	printf("(8) Heap Sort               \n");
 	printf("(9) Radix Sort              \n");
 	printf("(10) Exit                   \n");
