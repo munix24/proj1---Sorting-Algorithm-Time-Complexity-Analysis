@@ -78,7 +78,7 @@ void InsertionSort(long *, int);               /* Insertion Sort */
 void MergeSort(long *, long *, int, int);      /* Merge Sort */
 void Merge(long *, long *, int, int, int);
 
-void QuickSort1(long *, int, int);              /* Quick Sort */
+void QuickSort1(long *, int, int, int Qtype);              /* Quick Sort */
 int  FindMedian(long *, int, int, int);
 void Split(long *, int, int, int *);
 void Swap(long *, long *);
@@ -186,7 +186,8 @@ int main()
 					TestList = CreateList(num);
 					CopyList(TestList, List, num);
 					start = clock();                      /* get start time*/
-					QuickSort1(TestList, 0, num-1,Qchoice);        /* sort list     */
+					
+					(TestList, 0, num-1,Qchoice);        /* sort list     */
 					end = clock();                        /* get end time  */
 					ShowResults("1Quick Sort", start, end, num, filename);
 					Check(TestList,num);  /* Check for correct sorting */
