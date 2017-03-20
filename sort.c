@@ -57,7 +57,7 @@ MenuOptionTypes;
 /* GLOBAL VARIABLE */
 int comparison_count;    /* Count of comparisons */
 
-/*FUNCTION PROTOTYPES **/
+						 /*FUNCTION PROTOTYPES **/
 int Menu(void);
 int QuicksortMenu(void);
 void GetFilename(char *);
@@ -78,7 +78,7 @@ void InsertionSort(long *, int);               /* Insertion Sort */
 void MergeSort(long *, long *, int, int);      /* Merge Sort */
 void Merge(long *, long *, int, int, int);
 
-void QuickSort1(long *, int, int, int Qtype);              /* Quick Sort */
+void QuickSort1(long *, int, int);              /* Quick Sort */
 int  FindMedian(long *, int, int, int);
 void Split(long *, int, int, int *);
 void Swap(long *, long *);
@@ -109,8 +109,8 @@ int main()
 		switch (choice)    /* Examine value of user's choice.           */
 		{
 		case INFILE:  /* (1) SPECIFY INPUT FILE */
-			/* Prompt user to enter filename and read it in.     */
-			/* Read in numbers from input file and place in List */
+					  /* Prompt user to enter filename and read it in.     */
+					  /* Read in numbers from input file and place in List */
 			GetFilename(filename);
 			if (List != NULL) free(List);
 			List = ReadInData(filename, &num);
@@ -134,7 +134,7 @@ int main()
 			Shuffle(List, &num);
 			break;
 		case INSERTION:  /* (6) INSERTION SORT */
-			/* Check to make sure there is a list to sort...*/
+						 /* Check to make sure there is a list to sort...*/
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
@@ -152,7 +152,7 @@ int main()
 			}
 			break;
 		case MERGE:  /* (7) MERGE SORT */
-			/* Check to make sure there is a list to sort...*/
+					 /* Check to make sure there is a list to sort...*/
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
@@ -175,24 +175,24 @@ int main()
 			}
 			break;
 		case QUICK1:  /* (8) QUICK SORT */
-			/* Check to make sure there is a list to sort...*/
+					  /* Check to make sure there is a list to sort...*/
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
 				int Qchoice;                 /* value of user's menu choice           */
-				Qchoice=QuicksortMenu();
-				if(Qchoice >= 1 && Qchoice <= 3)
+				Qchoice = QuicksortMenu();
+				if (Qchoice >= 1 && Qchoice <= 3)
 				{
 					TestList = CreateList(num);
 					CopyList(TestList, List, num);
 					start = clock();                      /* get start time*/
-					
-					(TestList, 0, num-1,Qchoice);        /* sort list     */
+					QuickSort1(TestList, 0, num - 1, Qchoice);        /* sort list     */
 					end = clock();                        /* get end time  */
 					ShowResults("1Quick Sort", start, end, num, filename);
-					Check(TestList,num);  /* Check for correct sorting */
+					Check(TestList, num);  /* Check for correct sorting */
 					free(TestList);
-				} else {
+				}
+				else {
 					printf("\nInvalid Choice.\n");
 				}
 			}
@@ -201,7 +201,7 @@ int main()
 			}
 			break;
 		case HEAP:  /* (9) HEAP SORT */
-			/* Check to make sure there is a list to sort...*/
+					/* Check to make sure there is a list to sort...*/
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
@@ -221,7 +221,7 @@ int main()
 			}
 			break;
 		case RADIX:  /* (10) RADIX SORT */
-			/* Check to make sure there is a list to sort...*/
+					 /* Check to make sure there is a list to sort...*/
 			if (List != NULL)
 			{
 				/* Create a Test List and copy original values into it*/
@@ -259,9 +259,9 @@ long Shuffle(long *L, int *num)
 	for (i = 0; i < *num; ++i)
 	{
 		random_pos = rand(time(NULL)) % *num;	/* random position between 0 and num-1 (inclusive) */
-		temp=L[random_pos];
+		temp = L[random_pos];
 		L[random_pos] = L[i];
-		L[i]= temp;
+		L[i] = temp;
 	}
 }
 
@@ -314,24 +314,24 @@ void QuickSort1(long *L, int first, int last, int Qtype)
 {
 	int SplitPoint;  /* Value to Split list around */
 
-	if( first < last )
+	if (first < last)
 	{
 		/* Use first element as pivot (for splitting) */
-		switch(Qtype)
+		switch (Qtype)
 		{
 		case 1:									/* Pivot Choice 1: The first element in the list */
 			SplitPoint = first;                 /* assign SplitPoint to 1st index */
 			break;
 		case 2:									/* Pivot Choice 2: A random element in the array */
-			SplitPoint = (rand(time(NULL)) % (last-first))+first;                 /* assign SplitPoint to random index */
+			SplitPoint = (rand(time(NULL)) % (last - first)) + first;                 /* assign SplitPoint to random index */
 			break;
 		default:  								/* Pivot Choice 3: The median of the first, middle, and last elements in the array. */
-			SplitPoint = FindMedian(L,first,last,(int)((first + last)/2));                 /* assign SplitPoint to median index */
+			SplitPoint = FindMedian(L, first, last, (int)((first + last) / 2));                 /* assign SplitPoint to median index */
 			break;
 		}
 		Split(L, first, last, &SplitPoint); /* Split List around SplitPoint */
-		QuickSort1(L, first, SplitPoint-1, Qtype);  /* Sort 1st section of list */
-		QuickSort1(L, SplitPoint+1, last, Qtype);   /* Sort 2nd section of list */
+		QuickSort1(L, first, SplitPoint - 1, Qtype);  /* Sort 1st section of list */
+		QuickSort1(L, SplitPoint + 1, last, Qtype);   /* Sort 2nd section of list */
 	}
 }
 void Split(long *L, int first, int last, int *SplitPoint)
@@ -425,12 +425,12 @@ Destination List, and Lower, Mid, and Upper indices of list.  */
 {
 	int S1, S2, D;    /* indices for source1, source2, and destination */
 
-	/* Initialize Pointers */
+					  /* Initialize Pointers */
 	S1 = Lower;      /* Set S1 to lower index of list */
 	S2 = Mid + 1;    /* Set S2 to middle index + 1 of list */
 	D = Lower;       /* Set D to lower index of list */
 
-	/* Repeat the comparison of current item from each list */
+					 /* Repeat the comparison of current item from each list */
 	do {	/* If source value in list 1 is less than value in Source2: */
 #ifdef TAKE_COUNT
 		comparison_count++;
@@ -560,7 +560,7 @@ void RadixSort(long *L, int n)
 
 		counter = 0;                    /* initialize counter to 0 */
 
-		/* Coalesce all values from buckets back into the list */
+										/* Coalesce all values from buckets back into the list */
 		for (j = 0; j < NUMBUCKETS; ++j) {
 			for (k = 0; k < bucket[j].count; ++k) {
 				L[counter] = bucket[j].num[k];  /* put value from bucket in list*/
@@ -633,8 +633,8 @@ long *ReadInData(char *filename, int *num)
 		return(NULL);               /* Return no List */
 	}
 	else {           /* file exists */
-	 /* Allocate memory for # of elements. If memory cannot be allocated,
-	 display message and terminate program. Read in the elements. */
+					 /* Allocate memory for # of elements. If memory cannot be allocated,
+					 display message and terminate program. Read in the elements. */
 
 		printf("\nFile %s is now the input file.\n", filename);
 		fscanf(file, "%d", num);
@@ -801,7 +801,7 @@ void ShowResults(char *string, float t1, float t2, int n, char *filename)
 		printf("\nERROR Writing to %s\n", OUTPUTFILE);
 	}
 	else {           /* no error */
-		fprintf(file, "%c%c %10d %15d %15ld ",string[1], string[0], n, comparison_count, micro);
+		fprintf(file, "%c%c %10d %15d %15ld ", string[1], string[0], n, comparison_count, micro);
 		fprintf(file, "%s\n", filename);
 		fclose(file);
 	}
@@ -839,8 +839,8 @@ int QuicksortMenu(void)
 	printf("(3) Pivot Choice 3: The median of the first, middle, and last elements in the array.  \n");
 	printf("(4) Exit                    \n");
 	printf("\n\nchoice==>");
-	scanf("%d",&choice);
-	if ( !(choice >= 1 && choice <= 3) )
+	scanf("%d", &choice);
+	if (!(choice >= 1 && choice <= 3))
 		choice = -1;
 
 	return (choice);          /* return value of user's choice */
@@ -862,7 +862,7 @@ int Menu(void)
 	printf("(0) Specify Input File      \n");
 	printf("(1) Make Random Input List  \n");
 	printf("(2) Make Increasing Input List  \n");
-	printf("(3) Make Decreasing Input List  \n"); 
+	printf("(3) Make Decreasing Input List  \n");
 	printf("(4) Shuffle List  \n");
 	printf("SORTING ALGORITHMS          \n");
 	printf("(5) Insertion Sort          \n");
