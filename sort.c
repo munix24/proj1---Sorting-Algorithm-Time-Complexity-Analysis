@@ -78,7 +78,7 @@ void InsertionSort(long *, int);               /* Insertion Sort */
 void MergeSort(long *, long *, int, int);      /* Merge Sort */
 void Merge(long *, long *, int, int, int);
 
-void QuickSort1(long *, int, int);              /* Quick Sort */
+void QuickSort1(long *, int, int, int Qtype);              /* Quick Sort */
 int  FindMedian(long *, int, int, int);
 void Split(long *, int, int, int *);
 void Swap(long *, long *);
@@ -656,7 +656,6 @@ long *MakeRandomList(int *num)
 	long *L;               /* pointer to List */
 	unsigned int seed;     /* seed for random number generator */
 	int i;                 /* index of for loop */
-	int asdf;
 
 	printf("\nNumber of elements to sort=>");
 	scanf("%d", num);
@@ -674,8 +673,7 @@ long *MakeRandomList(int *num)
 	}
 	for (i = 0; i < *num; ++i)
 	{
-		asdf = rand();
-		L[i] = asdf;
+		L[i] = rand();
 	}
 
 	return(L);           /* Return the List */
