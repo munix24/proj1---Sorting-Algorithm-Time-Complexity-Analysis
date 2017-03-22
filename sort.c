@@ -46,18 +46,16 @@ typedef struct BucketType          /* Bucket structure for RadixSort */
 	unsigned long id;               /* bucket identification   */
 } BUCKET;
 
-#define NUMMENUOPTIONS 10
+//#define NUMMENUOPTIONS 11
 typedef enum {
-	INFILE, RANDOM, INCREASING, DECREASING, SHUFFLE_LIST,
-	INSERTION, MERGE, QUICK1, HEAP, RADIX,
-	EXIT
-}
-MenuOptionTypes;
+	OUTPUT, INFILE, RANDOM, INCREASING, DECREASING, SHUFFLE_LIST,
+	INSERTION, MERGE, QUICK1, HEAP, RADIX, EXIT
+} MenuOptionTypes;
 
 /* GLOBAL VARIABLE */
-int comparison_count;    /* Count of comparisons */
+int comparison_count;    // Count of comparisons 
 
-						 /*FUNCTION PROTOTYPES **/
+/*FUNCTION PROTOTYPES */
 int Menu(void);
 int QuicksortMenu(void);
 void GetFilename(char *);
@@ -108,6 +106,14 @@ int main()
 		choice = Menu();  /* Display menu. Get value of user's choice. */
 		switch (choice)    /* Examine value of user's choice.           */
 		{
+		case OUTPUT:
+			if (List != NULL)
+			{
+				OutputList(List, num);
+			} else {
+				printf("\nThere is no input list. Specify one!.\n");
+			}
+			break;
 		case INFILE:  /* (1) SPECIFY INPUT FILE */
 					  /* Prompt user to enter filename and read it in.     */
 					  /* Read in numbers from input file and place in List */
@@ -131,7 +137,12 @@ int main()
 			strcpy(filename, "decreasing list"); /* input 'filename' is decreasing */
 			break;
 		case SHUFFLE_LIST:  /* (5) Shuffle_List */
-			Shuffle(List, &num);
+			if (List != NULL)
+			{
+				Shuffle(List, &num);
+			} else {
+				printf("\nThere is no input list. Specify one!.\n");
+			}
 			break;
 		case INSERTION:  /* (6) INSERTION SORT */
 						 /* Check to make sure there is a list to sort...*/
@@ -185,6 +196,7 @@ int main()
 				{
 					TestList = CreateList(num);
 					CopyList(TestList, List, num);
+					srand(time(NULL));
 					start = clock();                      /* get start time*/
 					QuickSort1(TestList, 0, num - 1, Qchoice);        /* sort list     */
 					end = clock();                        /* get end time  */
@@ -256,9 +268,11 @@ long Shuffle(long *L, int *num)
 	int random_pos;        /* index of for loop */
 	int temp;        /* index of for loop */
 	int i;                 /* index of for loop */
+	srand(time(NULL));
+
 	for (i = 0; i < *num; ++i)
 	{
-		random_pos = rand(time(NULL)) % *num;	/* random position between 0 and num-1 (inclusive) */
+		random_pos = rand() % *num;	/* random position between 0 and num-1 (inclusive) */
 		temp = L[random_pos];
 		L[random_pos] = L[i];
 		L[i] = temp;
@@ -323,7 +337,7 @@ void QuickSort1(long *L, int first, int last, int Qtype)
 			SplitPoint = first;                 /* assign SplitPoint to 1st index */
 			break;
 		case 2:									/* Pivot Choice 2: A random element in the array */
-			SplitPoint = (rand(time(NULL)) % (last - first)) + first;                 /* assign SplitPoint to random index */
+			SplitPoint = (rand() % (last - first)) + first;                 /* assign SplitPoint to random index */
 			break;
 		default:  								/* Pivot Choice 3: The median of the first, middle, and last elements in the array. */
 			SplitPoint = FindMedian(L, first, last, (int)((first + last) / 2));                 /* assign SplitPoint to median index */
@@ -857,22 +871,24 @@ int Menu(void)
 	printf("<   and then press Enter   >\n");
 	printf("============================\n");
 	printf("INPUT TYPE                  \n");
-	printf("(0) Specify Input File      \n");
-	printf("(1) Make Random Input List  \n");
-	printf("(2) Make Increasing Input List  \n");
-	printf("(3) Make Decreasing Input List  \n");
-	printf("(4) Shuffle List  \n");
+	printf("(0) Output List      \n");
+	printf("(1) Specify Input File      \n");
+	printf("(2) Make Random Input List (nums between 0 and 32767)  \n");
+	printf("(3) Make Increasing Input List  \n");
+	printf("(4) Make Decreasing Input List  \n");
+	printf("(5) Shuffle List  \n");
 	printf("SORTING ALGORITHMS          \n");
-	printf("(5) Insertion Sort          \n");
-	printf("(6) Merge Sort              \n");
-	printf("(7) Quick Sort			    \n");
-	printf("(8) Heap Sort               \n");
-	printf("(9) Radix Sort              \n");
-	printf("(10) Exit                   \n");
+	printf("(6) Insertion Sort          \n");
+	printf("(7) Merge Sort              \n");
+	printf("(8) Quick Sort			    \n");
+	printf("(9) Heap Sort               \n");
+	printf("(10) Radix Sort              \n");
+	printf("(11) Exit                   \n");
 	printf("\n\nchoice==>");
 	scanf("%d", &choice);     /* user enters choice # */
-	if (!(choice >= INFILE && choice <= EXIT))
+	if (!(choice >= OUTPUT && choice <= EXIT))
 		choice = -1;
 
 	return (choice);          /* return value of user's choice */
 }
+
